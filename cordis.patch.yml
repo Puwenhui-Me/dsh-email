@@ -1,0 +1,4 @@
+# 本组合包贡献的插件行（默认 263/993 SSL；账号密码经 $DSH_HOME/.env 环境变量注入，不落任何文件）
+- insert:
+    - id: email-tools
+      name: "@puwenhui/dsh-email"

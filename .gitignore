@@ -1,0 +1,4 @@
+node_modules/
+mail.db*
+data/
+*.tgz
