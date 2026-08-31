@@ -34,7 +34,7 @@ const FIELDS: FieldDef[] = [
   { key: 'smtpPort', label: 'SMTP 端口', type: 'number', hint: '263 为 25（无 SSL）；465 自动 SSL' },
   { key: 'smtpUser', label: 'SMTP 账号', type: 'string', placeholder: '默认同邮箱账号' },
   { key: 'smtpPass', label: 'SMTP 密码', type: 'secret', hint: '默认同邮箱密码；留空表示不修改' },
-  { key: 'folders', label: '同步文件夹', type: 'array', placeholder: 'INBOX, 已发送' },
+  { key: 'folders', label: '同步文件夹', type: 'array', placeholder: 'INBOX, 已发送, 垃圾邮件' },
   { key: 'pollSeconds', label: '同步间隔（秒）', type: 'number' },
   { key: 'backfillDays', label: '首次回填天数', type: 'number' },
   { key: 'notifyEnabled', label: '开启重要新邮件提醒', type: 'boolean' },
