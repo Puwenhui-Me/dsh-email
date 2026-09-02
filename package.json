@@ -1,6 +1,6 @@
 {
   "name": "@puwenhui/dsh-email",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "DSH 邮件助手插件：IMAP 同步 + 全文索引 + 会话归并 + 10 个模型工具 + 设置配置卡 + 重要新邮件桌面提醒",
   "repository": {
     "type": "git",
