@@ -44,12 +44,13 @@ dsh plugin --profile web add file:<本插件目录>
 
 | 工具 | 说明 |
 |---|---|
-| `email_search` | 全文搜索（主题/发件人/正文，中文可用） |
+| `email_search` | 全文搜索（主题/发件人/正文，中文可用，可限定文件夹） |
 | `email_recent` | 最近 N 小时新邮件 |
 | `email_threads` / `email_thread_view` | 会话线程列表 / 完整往来时间线 |
 | `email_sync` / `email_stats` | 手动同步 / 库统计 |
 | `email_mark_read` | 标已读（单封/整线程） |
 | `email_attachment_list` / `email_attachment_get` | 附件列表 / 下载到本地 |
+| `email_raw` | 读取原始邮件（RFC822 原文与全部链接），链接/正文缺失时的取证 |
 | `email_send` | 发信 / 回复（自动 In-Reply-To 归线程） |
 
 ## 已知边界（263 实测）
