@@ -138,7 +138,7 @@ export function apply(ctx: {
       label: () => t('tab'),
       locale: NS,
       inject: () => ({ face }),
-    }, () => h(MailSettingsTab)))
+    }, MailSettingsTab))
     return () => { offTab() }
   }, 'dsh-email: settings tab')
 
