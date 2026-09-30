@@ -9,7 +9,7 @@ import { createElement as h, useSyncExternalStore } from 'react'
 import { MailSettingsTab } from './settings-tab.tsx'
 
 export const name = 'dsh-email'
-export const inject = ['slots', 'locale', 'remote']
+export const inject = ['slots', 'locale', 'remote', 'remote.settings']
 
 /** 词典命名空间（标签页 locale 字段所需，极小词条） */
 const NS = 'dsh-email'
