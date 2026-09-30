@@ -73,7 +73,7 @@ export function MailSettingsTab(props: { face: SettingsFace }): JSX.Element {
     }
     // 本插件的 namespace：entry id 优先，回退按名字找
     const rows = (result.namespaces ?? []) as NamespaceView[]
-    const hit = rows.find(row => row.ns === 'email-tools')
+    const hit = rows.find(row => row.ns === 'dsh-email-tools')
       ?? rows.find(row => row.ns === 'dsh-email')
       ?? rows.find(row => row.ns === '@puwenhui/dsh-email')
     if (hit === undefined) {
