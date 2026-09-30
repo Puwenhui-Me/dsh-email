@@ -1,13 +1,26 @@
 /**
- * 浏览器半边：
- * 1) 设置 → 插件 →「邮件」配置卡（settings.plugin.item keyed 槽，读写经 settingsScope）
- * 2) 重要新邮件提醒：宿主 SSE（/dsh-email/notify）→ 桌面通知 + 页内右上横幅兜底
+ * 浏览器半边（DSH 0.2.0 形态）：
+ * 1) 设置 → 插件 →「邮件」标签页（settings.plugins.tab 槽）：邮箱连接与提醒规则表单，
+ *    读写经 remote.settings——写入落 profile patch 的 email-tools entry config，
+ *    宿主自动按新配置重挂载插件，保存即生效
+ * 2) 重要新邮件提醒：宿主 SSE（/dsh-email/notify）→ 桌面通知 + 页内横幅
  */
 import { createElement as h, useSyncExternalStore } from 'react'
-import { SettingsCard } from './settings-card.tsx'
+import { MailSettingsTab } from './settings-tab.tsx'
 
 export const name = 'dsh-email'
-export const inject = ['slots', 'locale', 'theme']
+export const inject = ['slots', 'locale', 'remote']
+
+/** 词典命名空间（标签页 locale 字段所需，极小词条） */
+const NS = 'dsh-email'
+const zh = { tab: '邮件' }
+const en = { tab: 'Mail' }
+
+/** 注入给表单的读写面（remote.settings 的窄化封装） */
+export interface SettingsFace {
+  describe(): Promise<{ namespaces: unknown[] } | { error: string }>
+  mutate(ns: string, ops: ReadonlyArray<{ op: 'set' | 'unset'; path: readonly string[]; value?: unknown }>, revision?: number): Promise<{ ok: boolean; error?: string }>
+}
 
 interface ImportantMail {
   subject: string
@@ -98,25 +111,36 @@ export function apply(ctx: {
     inject: (slot: string, register: () => () => void) => () => void
     register: (options: Record<string, unknown>, component: (props?: unknown) => unknown) => () => void
   }
-  inject: (services: string[], callback: (scoped: unknown) => void) => () => void
+  locale: { register(ns: string, dict: Record<string, Record<string, string>>): unknown }
+  remote: { settings: SettingsFace }
   effect: (fn: () => unknown, label?: string) => () => void
 }): void {
-  // 1) 配置卡：设置 → 插件 →「邮件」。
-  //    dshmarket 同款：在 settingsScope 服务可用的上下文里注册 keyed 卡
-  //    （不带 locale 字段——未注册词典的 locale 命名空间会让注册失败）。
-  ctx.inject(['settingsScope'], (scopedCtx) => {
-    const scoped = scopedCtx as {
-      slots: typeof ctx.slots
-      effect: typeof ctx.effect
-      settingsScope: { bind(spec: { namespace: string }): unknown }
+  // 1) 设置 → 插件 →「邮件」标签页（0.2.0 的插件区 tab 槽）
+  ctx.effect(() => {
+    try { ctx.locale.register(NS, { zh, en }) } catch { /* 已注册 */ }
+    const t = (key: keyof typeof zh) => zh[key] ?? String(key)
+    const face: SettingsFace = {
+      describe: async () => {
+        const response = await ctx.remote.settings.describe()
+        return response.ok && response.value !== undefined
+          ? { namespaces: response.value.namespaces }
+          : { error: response.error?.message ?? 'settings.describe failed' }
+      },
+      mutate: async (ns, ops, revision) => {
+        const response = await ctx.remote.settings.mutate(ns, ops, revision)
+        return response.ok ? { ok: true } : { ok: false, error: response.error?.message ?? 'settings.mutate failed' }
+      },
     }
-    const scope = scoped.settingsScope.bind({ namespace: 'dsh-email' })
-    scoped.effect(() => scoped.slots.inject('settings.plugin.item', () =>
-      scoped.slots.register(
-        { name: 'settings.plugin.item', key: 'dsh-email' },
-        () => h(SettingsCard, { scope: scope as never }),
-      )), 'dsh-email: settings card')
-  })
+    const offTab = ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
+      name: 'settings.plugins.tab',
+      id: 'dsh-email',
+      order: 30,
+      label: () => t('tab'),
+      locale: NS,
+      inject: () => ({ face }),
+    }, () => h(MailSettingsTab)))
+    return () => { offTab() }
+  }, 'dsh-email: settings tab')
 
   // 2) 重要邮件提醒：SSE → 桌面通知 + 页内横幅
   ctx.effect(() => {
