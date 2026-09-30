@@ -54,7 +54,19 @@ export function MailSettingsTab(props: { face: SettingsFace }): JSX.Element {
 
   const reload = useCallback(async () => {
     setError(null)
-    const result = await face.describe()
+    if (face === undefined || typeof face.describe !== 'function') {
+      setError('组件未收到设置读写面（inject face 缺失）')
+      return
+    }
+    // 挂起兜底：8 秒无响应按超时报错，不让界面永远停在加载中
+    const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('settings.describe 8 秒未响应')), 8000))
+    let result: Awaited<ReturnType<typeof face.describe>>
+    try {
+      result = await Promise.race([face.describe(), timeout])
+    } catch (e) {
+      setError(`读取设置失败：${String((e as Error).message)}`)
+      return
+    }
     if ('error' in result) {
       setError(result.error)
       return
